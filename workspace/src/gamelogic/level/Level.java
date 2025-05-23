@@ -199,6 +199,7 @@ public class Level {
 	private void water(int col, int row, Map map, int fullness) {
 		                       //make water (You’ll need modify this to make different kinds of water such as half water and quarter water)
 		
+		//Creates a water with graphics based on the fullness level
 		Water w = new Water (col, row, tileSize, tileset.getImage("Full_water"), this, fullness);
 		if(fullness==3){
 			w = new Water (col, row, tileSize, tileset.getImage("Full_water"), this, fullness);
@@ -211,12 +212,15 @@ public class Level {
 		}
 		else{
 		 w = new Water (col, row, tileSize, tileset.getImage("Falling_water"), this, fullness);
-		 //MAKE IT SO THAT THIS CAN'T GO LEFT/RIGHT IDK ADD ANOTHER CONDITIONAL TO THE LEFT ANDRIGHT INPUTS SO THAT !(fullness<=0)
+
+		//Places the new Water tile
 		}
 		map.addTile(col, row, w);
 
 
                        //check if we can go down
+
+			//Checks the to see if water tiles can be placed below and if the follow tile is solid so that a full water can be placed on it
 			if(row+1 < map.getTiles()[0].length && !(map.getTiles()[col][row+1] instanceof Water) && !(map.getTiles()[col][row+1].isSolid())){
 				if (row+2 < map.getTiles()[0].length && map.getTiles()[col][row+2].isSolid()){
 					water(col, row+1, map, 3);
@@ -227,6 +231,7 @@ public class Level {
 			}
 						//if we can’t go down go left and right.
 
+			//Checks to see if the water can flow left and/or right based on the fullness of the current water tile and if the blocks that the water would occupy exist and aren't solid or water
 			else if (row < map.getTiles()[0].length  && fullness > 1) {
 						//right
 				if(col+1 < map.getTiles().length && !(map.getTiles()[col+1][row] instanceof Water) && !(map.getTiles()[col+1][row].isSolid())){
@@ -241,12 +246,17 @@ public class Level {
 	}
 
 	//Adds gas tiles until the requisite number of squares are filled or there is no more room 
+
+	
 	private void addGas(int col, int row, Map map, int numSquaresToFill, ArrayList<Gas> placedThisRound) {
-		
+	
+		//Creates the original starting gas tile
 	Gas g = new Gas (col, row, tileSize, tileset.getImage("GasOne"), this, 0);
 	map.addTile(col, row, g);
 	placedThisRound.add(g);
 	numSquaresToFill--;
+
+	//Places gas in the pattern assigned
 	while(placedThisRound.size()>0 && numSquaresToFill>0) {
 		
 		int c = placedThisRound.get(0).getCol();
@@ -254,6 +264,7 @@ public class Level {
 		placedThisRound.remove(0);
 		for (int rowIndex = r-1; rowIndex<=r+1; rowIndex++){
 			for(int colIndex = c; colIndex>c-2; colIndex-=2){
+				//Makes sure the correct amount of gas tiles are placed so that they don't get placed on existing gas or solid tiles
 				if(!(colIndex==col && rowIndex==row) && !(map.getTiles()[colIndex][rowIndex].isSolid()) && !(map.getTiles()[colIndex][rowIndex] instanceof Gas)){
 						placedThisRound.add(new Gas (colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0));
 						map.addTile(colIndex,rowIndex, new Gas (colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0));
