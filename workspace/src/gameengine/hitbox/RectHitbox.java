@@ -9,7 +9,7 @@ import gameengine.maths.Vector2D;
 public class RectHitbox extends Hitbox{
 
 	private GameObject object; //This is the object the hitbox is attached to;
-	private Vector2D position; 
+	public Vector2D position; 
 	private float offsetX;
 	private float offsetY;
 	private int width;

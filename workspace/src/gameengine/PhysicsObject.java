@@ -175,10 +175,24 @@ public class PhysicsObject extends GameObject{
 	public float getMovementY() {
 		return movementVector.y;
 	}
+
+		public void setMovementY(float a) {
+		movementVector.y = a;
+	}
+	
 	
 	public RectHitbox getHitbox() {
 		return hitbox;
 	}
+
+	public void setHitboxX(float a) {
+		hitbox.position.x = a;
+	}
+
+public void setHitboxY(float a) {
+		hitbox.position.y = a;
+	}
+
 	
 	public Level getLevel() {
 		return level;

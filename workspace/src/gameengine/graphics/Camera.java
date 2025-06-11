@@ -9,7 +9,7 @@ import gamelogic.player.Player;
 
 public class Camera {
 
-	public static final boolean SHOW_CAMERA = false;
+	public static boolean SHOW_CAMERA = false;
 	
 	private Vector2D position;
 	private Player player;
@@ -32,6 +32,7 @@ public class Camera {
 	private float borderBot;
 	
 	private Vector2D goalPosition;
+	public boolean inGas = false;
 	
 	public Camera(int width, int height, int borderLeft, int borderRight, int borderBot) {
 		this.position = new Vector2D();
@@ -48,7 +49,7 @@ public class Camera {
 			
 			calulateGoalPositon();
 			checkBorders();
-			
+			if(!inGas){
 			//Calculating the differences between the goal position and the current position of the camera
 			float diffX = goalPosition.x - position.x;
 			float amountX = diffX * velocityX;
@@ -61,6 +62,7 @@ public class Camera {
 			//At this point the difference is too small so the value gets set to avoid shaking of the camera
 			if(-setValue < diffX && diffX < setValue) position.x = goalPosition.x;
 			if(-setValue < diffY && diffY < setValue) position.y = goalPosition.y;
+			}
 		}
 	}
 	
@@ -81,8 +83,8 @@ public class Camera {
 	
 	//used for debugging
 	public void draw (Graphics g) {
-		g.setColor(Color.RED);
-		g.drawOval((int)(position.x + width/2) - size/2, (int)(position.y + height/2) - size/2, size, size);
+		g.drawRect(0, 0, 8000, 2000);
+		g.fillRect(0, 0, 8000, 2000);
 	}
 	
 	public void setFocusedObject(Player object) {

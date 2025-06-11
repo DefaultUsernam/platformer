@@ -1,5 +1,6 @@
 package gamelogic.level;
 
+import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +17,7 @@ import gamelogic.tiledMap.Map;
 import gamelogic.tiles.Flag;
 import gamelogic.tiles.Flower;
 import gamelogic.tiles.Gas;
+import gamelogic.tiles.Lever;
 import gamelogic.tiles.SolidTile;
 import gamelogic.tiles.Spikes;
 import gamelogic.tiles.Tile;
@@ -36,6 +38,8 @@ public class Level {
 	private ArrayList<Enemy> enemiesList = new ArrayList<>();
 	private ArrayList<Flower> flowers = new ArrayList<>();
 	private ArrayList<Water> waters = new ArrayList<>();
+	private ArrayList<Gas> gases = new ArrayList<>();
+	private ArrayList<Lever> levers = new ArrayList<>();
 
 	private List<PlayerDieListener> dieListeners = new ArrayList<>();
 	private List<PlayerWinListener> winListeners = new ArrayList<>();
@@ -46,6 +50,11 @@ public class Level {
 	private int tileSize;
 	private Tileset tileset;
 	public static float GRAVITY = 70;
+	private long time;
+	private int dyingTime;
+	private boolean inGas;
+	private boolean inWater;
+	// System.currentTimeMillis() - time = current time in milliseconds, divide by 1000 to get time in seconds
 
 	public Level(LevelData leveldata) {
 		this.leveldata = leveldata;
@@ -54,6 +63,7 @@ public class Level {
 		height = mapdata.getHeight();
 		tileSize = mapdata.getTileSize();
 		restartLevel();
+		time = System.currentTimeMillis();
 	}
 
 	public LevelData getLevelData(){
@@ -63,7 +73,13 @@ public class Level {
 	public void restartLevel() {
 		int[][] values = mapdata.getValues();
 		Tile[][] tiles = new Tile[width][height];
+		waters = new ArrayList();
+		gases = new ArrayList();
+		levers = new ArrayList();
 
+	int dyingTime = 200;
+	 boolean inGas = false;
+	 boolean inWater = false;
 		for (int x = 0; x < width; x++) {
 			int xPosition = x;
 			for (int y = 0; y < height; y++) {
@@ -127,6 +143,14 @@ public class Level {
 					tiles[x][y] = new Water(xPosition, yPosition, tileSize, tileset.getImage("Quarter_water"), this, 1);
 					waters.add((Water) tiles[x][y]);
 				}
+				else if (values[x][y] == 22){
+					Lever l = new Lever(xPosition, yPosition, tileSize, tileset.getImage("Left_lever"), this);
+					tiles[x][y] = l;
+					levers.add(l);
+				}
+				else if (values[x][y] == 23){
+					tiles[x][y] = new Lever(xPosition, yPosition, tileSize, tileset.getImage("Right_lever"), this);
+				}
 			}
 
 		}
@@ -186,11 +210,61 @@ public class Level {
 				}
 			}
 
+			inWater = false;
 			for(Water w: waters){
 				//checks if player is in water
 				if(w.getHitbox().isIntersecting(player.getHitbox())){
+					inWater = true;
 				}
 			}
+			
+				if (inWater){
+					player.setMovementY(-30);
+					GRAVITY = 10;
+					
+				}
+				 else{
+				 	GRAVITY = 70;
+				}
+				
+
+						for(Gas g: gases){
+				//checks if player is in a gas
+				if(g.getHitbox().isIntersecting(player.getHitbox())){
+					inGas = true;
+				}
+			}
+			if(inGas){
+				player.inGas = true;
+				camera.inGas = true;
+				Camera.SHOW_CAMERA = true;
+				//set player to blue color
+				//blocks out screen
+			}
+			else{
+				player.inGas = false;
+				camera.inGas = false;
+				Camera.SHOW_CAMERA = false;
+				//revert back to normal
+			}
+			inGas = false;
+			for(Lever l: levers){
+				if(l.getHitbox().isIntersecting(player.getHitbox())){
+					Lever j = (Lever) l;
+					if (!j.isRight){
+						float m = (float) (Math.random()*2000);
+						float n = (float) (Math.random()*200);
+					player.setX(m);
+					player.setY(n);
+					player.setHitboxX(m);
+					player.setHitboxY(n);
+					j.toRight();
+					l.isRight = true;
+					}
+				}
+
+			}
+		
 
 			// Update the enemies
 			for (int i = 0; i < enemies.length; i++) {
@@ -269,6 +343,7 @@ public class Level {
 	
 		//Creates the original starting gas tile
 	Gas g = new Gas (col, row, tileSize, tileset.getImage("GasOne"), this, 0);
+	gases.add(g);
 	map.addTile(col, row, g);
 	placedThisRound.add(g);
 	numSquaresToFill--;
@@ -284,6 +359,7 @@ public class Level {
 				//Makes sure the correct amount of gas tiles are placed so that they don't get placed on existing gas or solid tiles
 				if(!(colIndex==col && rowIndex==row) && !(map.getTiles()[colIndex][rowIndex].isSolid()) && !(map.getTiles()[colIndex][rowIndex] instanceof Gas) && numSquaresToFill>0){//last condition added after submit, idk if it helped or not
 						Gas k = new Gas (colIndex, rowIndex, tileSize, tileset.getImage("GasOne"), this, 0);
+						gases.add(k);
 						placedThisRound.add(k);
 						map.addTile(colIndex,rowIndex, k);
 						numSquaresToFill--;
@@ -337,6 +413,10 @@ public class Level {
 	   			 if (camera.isVisibleOnCamera(tile.getX(), tile.getY(), tile.getSize(), tile.getSize()))
 	   				 tile.draw(g);
 	   		 }
+			 if(inWater){
+				g.drawRect(0, 0, width, height);
+				g.setColor(Color.BLUE);
+			 }
 	   	 }
 
 

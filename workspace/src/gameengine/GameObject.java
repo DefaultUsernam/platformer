@@ -37,6 +37,14 @@ public class GameObject {
 	public float getY() {
 		return position.y;
 	}
+
+		public void setX(float a) {
+		position.x = a;
+	}
+	
+	public void setY(float a) {
+		position.y = a;
+	}
 	
 	public int getWidth() {
 		return width;

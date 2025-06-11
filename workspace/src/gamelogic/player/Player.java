@@ -13,6 +13,10 @@ import gamelogic.tiles.Tile;
 public class Player extends PhysicsObject{
 	public float walkSpeed = 400;
 	public float jumpPower = 1350;
+	public boolean inGas = false;
+
+
+//how to not double jump (roi said it's important)
 
 	private boolean isJumping = false;
 
@@ -45,7 +49,13 @@ public class Player extends PhysicsObject{
 
 	@Override
 	public void draw(Graphics g) {
+		
+		if(inGas){
+			g.setColor(Color.BLUE);
+		}
+		else{
 		g.setColor(Color.YELLOW);
+		}
 		MyGraphics.fillRectWithOutline(g, (int)getX(), (int)getY(), width, height);
 		
 		if(Main.DEBUGGING) {
@@ -57,6 +67,7 @@ public class Player extends PhysicsObject{
 				}
 			}
 		}
+
 		
 		hitbox.draw(g);
 	}
